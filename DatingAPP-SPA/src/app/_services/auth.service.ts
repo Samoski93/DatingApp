@@ -1,15 +1,28 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { environment } from 'src/environments/environment';
+import { User } from '../_models/user';
 
+// Auth service to query database
 @Injectable()
 export class AuthService {
-  baseUrl = 'http://localhost:5000/api/auth/';
+  baseUrl = environment.apiUrl + 'auth/';
   jwtHelper = new JwtHelperService();
   decodedToken: any;
+  currentUser: User;
+  // memberEdit & navComp subscribes from this
+  photoUrl = new BehaviorSubject<string>('../../assets/user.png'); // photoUrl is now an observable of type BehaviorSubject,
+  currentPhotoUrl = this.photoUrl.asObservable();
 
   constructor(private http: HttpClient) {}
+
+  // This method is called when a user updates is photo (main)
+  changeMemberPhoto(photoUrl: string) {
+    this.photoUrl.next(photoUrl);
+  }
 
   // Takes the model object passed from the navbar
   login(model: any) {
@@ -23,15 +36,15 @@ export class AuthService {
             if (user) {
               localStorage.setItem('token', user.token); // Stores the the token locally, so we have easy access to it
               this.decodedToken = this.jwtHelper.decodeToken(user.token);
-              console.log(this.decodedToken);
+              this.changeMemberPhoto(this.currentUser.photoUrl);
             }
           })
         )
     );
   }
 
-  register(model: any) {
-    return this.http.post(this.baseUrl + 'register', model);
+  register(user: User) {
+    return this.http.post(this.baseUrl + 'register', user);
   }
 
   loggedIn() {

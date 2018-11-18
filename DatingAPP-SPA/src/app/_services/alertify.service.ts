@@ -12,7 +12,6 @@ export class AlertifyService {
       if (e) {
         okCallback();
       } else {
-        //
       }
     });
   }
@@ -21,12 +20,12 @@ export class AlertifyService {
     alertify.success(message);
   }
 
-  warning(message: string) {
-    alertify.warning(message);
-  }
-
   error(message: string) {
     alertify.error(message);
+  }
+
+  warning(message: string) {
+    alertify.warning(message);
   }
 
   message(message: string) {

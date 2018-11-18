@@ -9,6 +9,7 @@ namespace DatingAPP.API.Models
         public string Description { get; set; }
         public DateTime DateAdded { get; set; }
         public bool IsMain { get; set; }
+        public string PublicId { get; set; }    // stores the image response from cloudinary
         public User User { get; set; }
         public int UserId { get; set; }
     }

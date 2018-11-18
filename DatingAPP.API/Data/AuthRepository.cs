@@ -19,7 +19,7 @@ namespace DatingAPP.API.Data
             // Use the username to identify the user in our db and store in a var.
             // Compare the password not with the string of password but the hashed password,
             // so we compute the hash this password generates & then compare with this password hash stored in our database
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Username == username);
+            var user = await _context.Users.Include(p => p.Photos).FirstOrDefaultAsync(x => x.Username == username);
             if (user != null)
                 return null;
 
