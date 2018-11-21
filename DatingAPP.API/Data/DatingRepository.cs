@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DatingAPP.API.Helpers;
 using DatingAPP.API.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,10 +45,36 @@ namespace DatingAPP.API.Data
             return user;
         }
 
-        public async Task<IEnumerable<User>> GetUsers()
+        public async Task<PagedList<User>> GetUsers(UserParams userParams)
         {
-            var users = await _context.Users.Include(p => p.Photos).ToListAsync();
-            return users; ;
+            var users = _context.Users.Include(p => p.Photos).OrderByDescending(u => u.LastActive).AsQueryable();
+            var users = users.Where(u => u.Id == userParams.Id);
+            var users = users.Where(u => u.Gender == userParams.Gender);    // return gender of user in userParams
+
+            // check if there is a minimum age or max age
+            if (userParams.MinAge != 18 || userParams.MaxAge != 99)
+            {
+                // Age in is stored as DOb in the database, so we calculate
+                var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);   // minimum date of birth (minus numb of years from today based on the maxAge user is looking for)
+                var maxDob = DateTime.Today.AddYears(-userParams.MinAge);
+
+                var users = users.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
+            }
+
+            if (!string.IsNullOrEmpty(userParams.OrderBy))
+            {
+                switch(userParams.OrderBy)
+                {
+                    case "created":
+                        users = users.OrderByDescending(u => u.Created);
+                        break;
+                    default:
+                        users = users.OrderByDescending(u => u.LastActive);
+                        break;
+                }
+            }
+
+            return await PagedList<User>.CreateAsync(users, userParams.PageNumber, userParams.PageSize);
         }
 
         public async Task<bool> SaveAll()

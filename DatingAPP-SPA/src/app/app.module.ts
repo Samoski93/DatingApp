@@ -5,7 +5,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {
   BsDropdownModule,
   TabsModule,
-  BsDatepickerModule
+  BsDatepickerModule,
+  PaginationModule,
+  ButtonsModule
 } from 'ngx-bootstrap';
 import { RouterModule } from '@angular/router';
 import { JwtModule } from '@auth0/angular-jwt';
@@ -59,6 +61,8 @@ export function tokenGetter() {
     FormsModule,
     ReactiveFormsModule,
     BsDropdownModule.forRoot(),
+    PaginationModule.forRoot(),
+    ButtonsModule.forRoot(),
     BsDatepickerModule.forRoot(),
     TabsModule.forRoot(),
     NgxGalleryModule,
