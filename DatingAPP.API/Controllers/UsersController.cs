@@ -9,6 +9,7 @@ using DatingAPP.API.Dtos;
 using DatingAPP.API.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using DatingAPP.API.Models;
 
 namespace DatingAPP.API.Controllers
 {
@@ -34,7 +35,7 @@ namespace DatingAPP.API.Controllers
             var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
             var userFromRepo = await _repo.GetUser(currentUserId);
 
-            userParams.GetUser == currentUserId;
+            userParams.UserId = currentUserId;
 
             if (string.IsNullOrEmpty(userParams.Gender)) {
                 userParams.Gender = userFromRepo.Gender == "male" ? "female" : "male";
@@ -72,6 +73,38 @@ namespace DatingAPP.API.Controllers
                 return NoContent();
 
             throw new Exception($"Updating user {id} failed on save");
+        }
+
+        [HttpPost("{id}/like/{recipientId}/")]
+        public async Task<IActionResult> LikeUSer(int id, int recipientId)
+        {
+            // Make sure user is authorized before they can like another user
+            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var like = await _repo.GetLike(id, recipientId);
+
+            if (like != null)   // If like is not null, means there's already a like for the user
+                return BadRequest("YOu already like this user");
+            
+            // Check if recipient of like exists
+            if (await _repo.GetUser(recipientId) == null)
+                return NotFound();
+            
+            // Create  a new like
+            like = new Like
+            {
+                LikerId = id,
+                LikeeId = recipientId
+            };
+
+            _repo.Add<Like>(like);
+
+            if (await _repo.SaveAll())
+                return Ok();
+
+            // if we don't sae successfully
+            return BadRequest("Failed to lke user");
         }
     }
 }
