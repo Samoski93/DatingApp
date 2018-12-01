@@ -21,7 +21,7 @@ export class RegisterComponent implements OnInit {
   cancelRegister = new EventEmitter();
   user: User;
   registerForm: FormGroup; // tracks the value and validity state of form control instances
-  bsConfig: Partal<BsDatepickerConfig>;
+  bsConfig: Partial<BsDatepickerConfig>;
 
   constructor(
     private authService: AuthService,
@@ -38,9 +38,9 @@ export class RegisterComponent implements OnInit {
   }
 
   createRegisterForm() {
-    this.fb.group(
+    this.registerForm = this.fb.group(
       {
-        gender: ['', Validators.required],
+        gender: ['male'],
         username: ['', Validators.required],
         knownAs: ['', Validators.required],
         dateOfBirth: [null, Validators.required],
@@ -48,9 +48,11 @@ export class RegisterComponent implements OnInit {
         country: ['', Validators.required],
         password: [
           '',
-          Validators.required,
-          Validators.minLength(4),
-          Validators.maxLength(8)
+          [
+            Validators.required,
+            Validators.minLength(4),
+            Validators.maxLength(8)
+          ]
         ],
         confirmPassword: ['', Validators.required]
       },

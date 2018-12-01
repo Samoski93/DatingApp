@@ -36,6 +36,8 @@ import { MemberDetailResolver } from './_resolvers/member-detail.resolver';
 import { MemberEditResolver } from './_resolvers/member-edit.resolver';
 import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
+import { MessageResolver } from './_resolvers/message.resolver';
+import { MemberMessagesComponent } from './members/member-messages/member-messages.component';
 
 export function tokenGetter() {
   return localStorage.getItem('token');
@@ -54,7 +56,8 @@ export function tokenGetter() {
     MemberDetailComponent,
     MemberEditComponent,
     PhotoEditorComponent,
-    TimeAgoPipe
+    TimeAgoPipe,
+    MemberMessagesComponent
   ],
   imports: [
     BrowserModule,
@@ -73,7 +76,7 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         whitelistedDomains: ['localhost:5000'],
-        blacklistedRoutes: ['localhost:5000/api/auth']
+        blacklistedRoutes: ['localhost:5000/api/auth/register']
       }
     })
   ],
@@ -86,7 +89,8 @@ export function tokenGetter() {
     MemberDetailResolver,
     MemberEditResolver,
     PreventUnsavedChanges,
-    ListsResolver
+    ListsResolver,
+    MessageResolver
   ],
   bootstrap: [AppComponent]
 })

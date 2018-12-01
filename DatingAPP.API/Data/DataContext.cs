@@ -17,12 +17,13 @@ namespace DatingAPP.API.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Like> Likes { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             // Make both the LikerId and LikeeId the primary key, so a user can't another more than once
             builder.Entity<Like>().
-                HasKey(k => new {k.LikerId, k.LikeeId});
+                HasKey(k => new { k.LikerId, k.LikeeId });
 
             // Tell EntityFramework about the relationship
             builder.Entity<Like>()
@@ -36,6 +37,16 @@ namespace DatingAPP.API.Data
                 .WithMany(u => u.Likees)
                 .HasForeignKey(u => u.LikeeId)      // goes back to the user
                 .OnDelete(DeleteBehavior.Restrict);
-        } 
+
+            builder.Entity<Message>()
+                .HasOne(u => u.Sender)
+                .WithMany(m => m.MessagesSent)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Message>()
+                .HasOne(u => u.Recipient)
+                .WithMany(m => m.MessagesReceived)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }

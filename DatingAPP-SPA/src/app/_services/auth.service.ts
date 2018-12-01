@@ -25,21 +25,37 @@ export class AuthService {
   }
 
   // Takes the model object passed from the navbar
+  // login(model: any) {
+  //   return (
+  //     this.http
+  //       .post(this.baseUrl + 'login', model, this.requestOptions())
+  //       // Server will return a token, take response from the server and transform it
+  //       .pipe(
+  //         map((response: any) => {
+  //           const user = response; // This will hold the token object
+  //           if (user) {
+  //             localStorage.setItem('token', user.token); // Stores the the token locally, so we have easy access to it
+  //             localStorage.setItem('user', JSON.stringify(user.user));
+  //             this.decodedToken = this.jwtHelper.decodeToken(user.token);
+  //             this.changeMemberPhoto(this.currentUser.photoUrl);
+  //           }
+  //         })
+  //       )
+  //   );
+  // }
+
   login(model: any) {
-    return (
-      this.http
-        .post(this.baseUrl + 'login', +model)
-        // Server will return a token, take response from the server and transform it
-        .pipe(
-          map((response: any) => {
-            const user = response; // This will hold the token object
-            if (user) {
-              localStorage.setItem('token', user.token); // Stores the the token locally, so we have easy access to it
-              this.decodedToken = this.jwtHelper.decodeToken(user.token);
-              this.changeMemberPhoto(this.currentUser.photoUrl);
-            }
-          })
-        )
+    return this.http.post(this.baseUrl + 'login', model).pipe(
+      map((response: any) => {
+        const user = response;
+        if (user) {
+          localStorage.setItem('token', user.token);
+          localStorage.setItem('user', JSON.stringify(user.user));
+          this.decodedToken = this.jwtHelper.decodeToken(user.token);
+          this.currentUser = user.user;
+          this.changeMemberPhoto(this.currentUser.photoUrl);
+        }
+      })
     );
   }
 

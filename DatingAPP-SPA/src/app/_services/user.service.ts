@@ -1,3 +1,4 @@
+import { PaginatedResult, Pagination } from './../_models/pagination';
 import { environment } from '../../environments/environment';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -5,7 +6,7 @@ import { Observable } from 'rxjs';
 import { User } from '../_models/user';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { map } from 'rxjs/operators';
-import { PaginatedResult } from '../_models/pagination';
+import { Message } from '../_models/message';
 
 // Get users bearer token
 // const httpOptions = {
@@ -24,27 +25,6 @@ export class UserService {
   currentUser: User;
 
   constructor(private http: HttpClient) {}
-
-  login(model: any) {
-    return this.http
-      .post(this.baseUrl + 'login', model, this.requestOptions())
-      .pipe(
-        map((response: any) => {
-          const user = response;
-          if (user) {
-            localStorage.setItem('token', user.token);
-            localStorage.setItem('user', JSON.stringify(user.user));
-            this.decodedToken = this.jwtHelper.decodeToken(user.token);
-            this.currentUser = user.user;
-            console.log(this.decodedToken);
-          }
-        })
-      );
-  }
-
-  // register(model: any) {
-  //   return this.http.post(this.baseUrl + 'register', model);
-  // }
 
   // returning a user array - get() returns an object of type user
   getUsers(
@@ -86,7 +66,7 @@ export class UserService {
         map(response => {
           paginatedResult.result = response.body;
           if (response.headers.get('Pagination') != null) {
-            paginatedResult.paginatioon = JSON.parse(
+            paginatedResult.pagination = JSON.parse(
               response.headers.get('Pagination')
             );
           }
@@ -119,5 +99,61 @@ export class UserService {
       this.baseUrl + 'users/' + id + '/like/' + recipientId,
       {}
     );
+  }
+
+  getMessages(id: number, page?, itemsPerPage?, messageContainer?) {
+    const paginatedResult: PaginatedResult<Message[]> = new PaginatedResult<
+      Message[]
+    >();
+    let params = new HttpParams();
+    params = params.append('MessageContainer', messageContainer);
+
+    if (page != null && itemsPerPage != null) {
+      params = params.append('pageNumber', page);
+      params = params.append('pageSize', itemsPerPage);
+    }
+
+    return this.http
+      .get<Message[]>(this.baseUrl + 'users/' + id + 'messages/', {
+        observe: 'response',
+        params
+      })
+      .pipe(
+        map(response => {
+          paginatedResult.result = response.body; // List of messages
+          if (response.headers.get('Pagination') !== null) {
+            paginatedResult.pagination = JSON.parse(
+              response.headers.get('Pagination')
+            );
+          }
+          return paginatedResult;
+        })
+      );
+  }
+
+  getMessageThread(id: number, recipientId: number) {
+    return this.http.get<Message[]>(
+      this.baseUrl + 'users/' + id + '/messages/thread/' + recipientId
+    );
+  }
+
+  sendMessage(id: number, message: string) {
+    return this.http.post(this.baseUrl + 'users/' + id + '/messages', message);
+  }
+
+  deleteMessage(id: number, userId: number) {
+    return this.http.post(
+      this.baseUrl + 'users/' + userId + '/messages/' + id,
+      {}
+    );
+  }
+
+  markAsRead(userId: number, messageId: number) {
+    this.http
+      .post(
+        this.baseUrl + 'users/' + userId + '/messages/' + messageId + '/read',
+        {}
+      )
+      .subscribe();
   }
 }

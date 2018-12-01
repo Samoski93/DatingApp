@@ -11,6 +11,7 @@ import { MemberEditComponent } from './members/member-edit/member-edit.component
 import { MemberEditResolver } from './_resolvers/member-edit.resolver';
 import { PreventUnsavedChanges } from './_guards/prevent-unsaved-changes.guard';
 import { ListsResolver } from './_resolvers/lists.resolver';
+import { MessageResolver } from './_resolvers/message.resolver';
 
 // Router guard
 // Array of routes, each routes is an object
@@ -37,7 +38,11 @@ export const appRoutes: Routes = [
         resolve: { user: MemberEditResolver },
         canDeactivate: [PreventUnsavedChanges]
       }, // rather than pass the id, we get it from the decoded token of the user
-      { path: 'messages', component: MessagesComponent },
+      {
+        path: 'messages',
+        component: MessagesComponent,
+        resolve: MessageResolver
+      },
       {
         path: 'lists',
         component: ListsComponent,

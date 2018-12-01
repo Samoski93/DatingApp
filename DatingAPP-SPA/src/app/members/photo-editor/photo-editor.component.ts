@@ -13,7 +13,7 @@ import { UserService } from 'src/app/_services/user.service';
 })
 export class PhotoEditorComponent implements OnInit {
   @Input() photos: Photo[];
-  @Output() getMemberPhotoChange: new EventEmitter<string>(); // output properties emit events
+  @Output() getMemberPhotoChange = new EventEmitter<string>(); // output properties emit events
   uploader: FileUploader;
   hasBaseDropZoneOver = false;
   baseUrl = environment.apiUrl;
@@ -26,7 +26,7 @@ export class PhotoEditorComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.initializeUploader();
+    // this.initializeUploader();
   }
 
   fileOverBase(e: any): void {
@@ -48,7 +48,6 @@ export class PhotoEditorComponent implements OnInit {
       maxFileSize: 10 * 1024 * 1024
     });
 
-
     this.uploader.onAfterAddingFile = file => {
       file.withCredentials = false;
     };
@@ -62,45 +61,86 @@ export class PhotoEditorComponent implements OnInit {
           url: res.url,
           dateAdded: res.dateAdded,
           description: res.description,
-          isMain: res.isMain,
-          isApproved: res.isApproved
+          isMain: res.isMain
         };
-        // Push new photo object to the photos array
         this.photos.push(photo);
-        if (photo.isMain) {
+      }
+    };
+  }
+
+  setMainPhoto(photo: Photo) {
+    this.userService
+      .setMainPhoto(this.authService.decodedToken.nameid, photo.id)
+      .subscribe(
+        () => {
+          this.currentMain = this.photos.filter(p => p.isMain === true)[0];
+          this.currentMain.isMain = false;
+          photo.isMain = true;
           this.authService.changeMemberPhoto(photo.url);
           this.authService.currentUser.photoUrl = photo.url;
           localStorage.setItem(
             'user',
             JSON.stringify(this.authService.currentUser)
           );
+        },
+        error => {
+          this.alertify.error(error);
         }
-      }
-    };
-
-    setMainPhoto(photo: Photo) {
-      this.userService.setMainPhoto(this.authService.decodedToken.nameid, photo.id).subscribe(() => {
-        this.currentMain = this.photos.filter(p => p.isMain === true)[0];
-        this.currentMain.isMain = false;
-        photo.isMain = true;
-        this.authService.changeMemberPhoto(photo.url);
-        this.authService.currentUser.photoUrl = photo.url;
-        localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
-      }, error => {
-        this.alertify.error(error);
-      });
-    }
+      );
   }
 
-  deletePhoto(id: int) {
+  deletePhoto(id: number) {
     this.alertify.confirm('Are you sure you want to delete this photo?', () => {
-      this.userService.deletePhoto(this.authService.decodedToken.nameid, id).subscribe(() => {  // pass in user id
-        // remove the photo from the photo array
-        this.photos.splice(this.photos.findIndex(p => p.id === id), 1);
-        this.alertify.success('Photo has been deleted');
-      } error => {
-        this.alertify.error('Failed to delete photo');
-      });
+      this.userService
+        .deletePhoto(this.authService.decodedToken.nameid, id)
+        .subscribe(
+          () => {
+            this.photos.splice(this.photos.findIndex(p => p.id === id), 1);
+            this.alertify.success('Photo has been deleted');
+          },
+          error => {
+            this.alertify.error('Failed to delete the photo');
+          }
+        );
     });
   }
+
+  //   // Building a photo object from the response from the server
+  //   this.uploader.onSuccessItem = (item, response, status, headers) => {
+  //     if (response) {
+  //       const res: Photo = JSON.parse(response);
+  //       const photo = {
+  //         id: res.id,
+  //         url: res.url,
+  //         dateAdded: res.dateAdded,
+  //         description: res.description,
+  //         isMain: res.isMain,
+  //         isApproved: res.isApproved
+  //       };
+  //       // Push new photo object to the photos array
+  //       this.photos.push(photo);
+  //       if (photo.isMain) {
+  //         this.authService.changeMemberPhoto(photo.url);
+  //         this.authService.currentUser.photoUrl = photo.url;
+  //         localStorage.setItem(
+  //           'user',
+  //           JSON.stringify(this.authService.currentUser)
+  //         );
+  //       }
+  //     }
+  //   };
+
+  //   setMainPhoto(photo: Photo) {
+  //     this.userService.setMainPhoto(this.authService.decodedToken.nameid, photo.id).subscribe(() => {
+  //       this.currentMain = this.photos.filter(p => p.isMain === true)[0];
+  //       this.currentMain.isMain = false;
+  //       photo.isMain = true;
+  //       this.authService.changeMemberPhoto(photo.url);
+  //       this.authService.currentUser.photoUrl = photo.url;
+  //       localStorage.setItem('user', JSON.stringify(this.authService.currentUser));
+  //     }, error => {
+  //       this.alertify.error(error);
+  //     });
+  //   }
+  // }
 }
