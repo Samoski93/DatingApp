@@ -14,9 +14,11 @@ namespace DatingAPP.API.Controllers
 {
     [ServiceFilter(typeof(LogUserActivity))]
     [Authorize]
-    [Route("api/users/{userId}/[controller]")]
-    [ApiController]
-    public class MessagesController : ControllerBase
+	[ApiController]
+	//[Route("api/users/{userId}/[controller]")]
+	//[Route("api/users/[controller]")]
+	[Route("api/users")]
+	public class MessagesController : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly IDatingRepository _repo;
@@ -26,8 +28,8 @@ namespace DatingAPP.API.Controllers
             _mapper = mapper;
         }
 
-        // Retrieve an individual message
-        [HttpGet("{id}", Name = "GetMesage")]
+		// Retrieve an individual message
+		[HttpGet("{userId}/[controller]/{id}", Name = "GetMesage")]
         public async Task<IActionResult> GetMessage(int userId, int id)
         {
             // Check to see that the user token matches the userId
@@ -44,7 +46,7 @@ namespace DatingAPP.API.Controllers
         }
 
         // Get list of messages
-        [HttpGet]
+        [HttpGet("{userId}/[controller]")]
         public async Task<IActionResult> GetMessagesForUser(int userId, [FromQuery]MessageParams messageParams)
         {
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
@@ -64,7 +66,7 @@ namespace DatingAPP.API.Controllers
             return Ok(messages);
         }
 
-        [HttpGet("{thread/{recipientId}")]
+        [HttpGet("{userId}/[controller]/thread/{recipientId}")]
         public async Task<IActionResult> GetMessageThread(int userId, int recipientId)
         {
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
@@ -78,8 +80,9 @@ namespace DatingAPP.API.Controllers
         }
 
         // To retrieve messages from the database, users should be able to create messages
-        [HttpPost]
-        public async Task<IActionResult> CreateMessage(int userId, MessageForCreationDto messageForCreationDto)
+        [HttpPost("{userId}/[controller]")]
+
+		public async Task<IActionResult> CreateMessage(int userId, MessageForCreationDto messageForCreationDto)
         {
             var sender = _repo.GetUser(userId);
 
@@ -111,7 +114,7 @@ namespace DatingAPP.API.Controllers
             throw new Exception("Creating new message failed on save");
         }
 
-        [HttpPost("{id}")]      // message id
+        [HttpDelete("{userId}/[controller]/{id}")]      // message id
         public async Task<IActionResult> DeleteMessage(int id, int userId)
         {
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
@@ -134,7 +137,7 @@ namespace DatingAPP.API.Controllers
             throw new Exception("Error deleting the message");
         }
 
-        [HttpPost("{id}/read")]
+        [HttpPost("{userId}/[controller]/{id}/read")]
         public async Task<IActionResult> MarkMessageAsRead(int userId, int id)
         {
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))

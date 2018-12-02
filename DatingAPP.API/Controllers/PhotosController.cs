@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using CloudinaryDotNet;
-
 using CloudinaryDotNet.Actions;
 using DatingAPP.API.Data;
 using DatingAPP.API.Dtos;
@@ -16,8 +15,8 @@ using Microsoft.Extensions.Options;
 namespace DatingAPP.API.Controllers
 {
     [Authorize]
-    [Route("api/users/(userId}/photos")]
-    [ApiController]
+	[Route("api/users")]
+	[ApiController]
     public class PhotosController : ControllerBase
     {
         private readonly IDatingRepository _repo;
@@ -42,7 +41,7 @@ namespace DatingAPP.API.Controllers
             _cloudianry = new Cloudinary(acc);
         }
 
-        [HttpGet("{id}", Name = "GetPhoto")]
+        [HttpGet("{userId}/[controller]/{id}", Name = "GetPhoto")]
         public async Task<IActionResult> GetPhoto(int id)
         {
             var photoFromRepo = await _repo.GetPhoto(id);
@@ -51,8 +50,9 @@ namespace DatingAPP.API.Controllers
             return Ok(photo);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddPhotoForUser(int userId, PhotoForCreationDto photoForCreationDto)
+        [HttpPost("{userId}/[controller]")]
+
+		public async Task<IActionResult> AddPhotoForUser(int userId, PhotoForCreationDto photoForCreationDto)
         {
             // Authorize request - check UserId against value in the token
             if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
@@ -102,7 +102,7 @@ namespace DatingAPP.API.Controllers
             return BadRequest("Could not upload image");
         }
 
-        [HttpPost("{id/isMain}")]
+        [HttpPost("{userId}/[controller]/{id}/isMain")]
         public async Task<IActionResult> SetMainPhoto(int userId, int id)
         {
             // Authorize request - check UserId against value in the token
@@ -132,7 +132,7 @@ namespace DatingAPP.API.Controllers
             return BadRequest("Could not set photo to main");
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{userId}/[controller]/{id}")]
         public async Task<IActionResult> DeletePhoto(int userId, int id)
         {
             // Authorize request - check UserId against value in the token
