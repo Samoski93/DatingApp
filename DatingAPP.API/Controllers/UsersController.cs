@@ -76,7 +76,7 @@ namespace DatingAPP.API.Controllers
         }
 
         [HttpPost("{id}/like/{recipientId}/")]
-        public async Task<IActionResult> LikeUSer(int id, int recipientId)
+        public async Task<IActionResult> LikeUser(int id, int recipientId)
         {
             // Make sure user is authorized before they can like another user
             if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
@@ -85,7 +85,7 @@ namespace DatingAPP.API.Controllers
             var like = await _repo.GetLike(id, recipientId);
 
             if (like != null)   // If like is not null, means there's already a like for the user
-                return BadRequest("YOu already like this user");
+                return BadRequest("You already like this user");
             
             // Check if recipient of like exists
             if (await _repo.GetUser(recipientId) == null)
