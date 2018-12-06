@@ -3,7 +3,7 @@ using AutoMapper;
 using DatingAPP.API.Models;
 using DatingAPP.API.Dtos;
 using System.Collections.Generic;
-using DatingApp.API.Dtos;
+using DatingAPP.API.Dtos;
 
 namespace DatingAPP.API.Helpers
 {
