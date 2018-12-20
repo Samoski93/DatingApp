@@ -1,8 +1,7 @@
+using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using DatingAPP.API.Models;
-using DatingAPP.API.Dtos;
-using System.Collections.Generic;
 using DatingAPP.API.Dtos;
 
 namespace DatingAPP.API.Helpers

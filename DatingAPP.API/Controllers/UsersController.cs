@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
-using DatingAPP.API.Dtos;
 using DatingAPP.API.Data;
 using DatingAPP.API.Dtos;
 using DatingAPP.API.Helpers;
+using DatingAPP.API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using DatingAPP.API.Models;
 
 namespace DatingAPP.API.Controllers
 {
